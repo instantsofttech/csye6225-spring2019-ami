@@ -22,7 +22,7 @@ jobs:
       - run:
           name: Build Artifact
           command: |
-            cd NotePadApp
+            cd cloud-api-data
             pwd
             ls -al
             mvn clean install -DskipTests
@@ -38,10 +38,10 @@ jobs:
             pwd
             mkdir -p codedeploy_artifact
             cp infrastructure/aws/codedeploy/*.sh /home/circleci/project/
-            cd NotePadApp/target
+            cd cloud-api-data/target
             pwd
             ls -al 
-            cp NotePadApp-0.0.1-SNAPSHOT.war /home/circleci/project/
+            cp cloud-api-data-0.0.1-SNAPSHOT.war /home/circleci/project/
             cd ../..
             zip -r csye6225-notepadapp-${CIRCLE_BUILD_NUM}.zip NotePadApp-0.0.1-SNAPSHOT.war *.sh *.yml
             mv csye6225-cloud-api-data-${CIRCLE_BUILD_NUM}.zip /home/circleci/project/codedeploy_artifact/
