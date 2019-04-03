@@ -23,7 +23,7 @@ jobs:
       - run:
           name: Build Artifact
           command: |
-            cd cloud-api-data
+            cd webapp/cloud-api-data
             pwd
             ls -al
             mvn clean install -DskipTests
