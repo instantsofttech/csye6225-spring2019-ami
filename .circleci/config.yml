@@ -44,7 +44,7 @@ jobs:
             ls -al 
             cp cloud-api-data-0.0.1-SNAPSHOT.war /home/circleci/project/
             cd ../..
-            zip -r csye6225-cloud-api-data-${CIRCLE_BUILD_NUM}.zip NotePadApp-0.0.1-SNAPSHOT.war *.sh *.yml
+            zip -r csye6225-cloud-api-data-${CIRCLE_BUILD_NUM}.zip cloud-api-data-0.0.1-SNAPSHOT.war *.sh *.yml
             mv csye6225-cloud-api-data-${CIRCLE_BUILD_NUM}.zip /home/circleci/project/codedeploy_artifact/
             cd /home/circleci/project/codedeploy_artifact/
             ls -al
