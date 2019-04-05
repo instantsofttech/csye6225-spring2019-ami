@@ -3,64 +3,32 @@ jobs:
   build:
     branches:
       only:
-        - Assignment4
-        - Assignment2
-        - Assignment5
+        - assignment6
+        - assignment5
         - master
     docker:
-      - image: circleci/openjdk:8-jdk
+      - image: circleci/python:2.7-jessie
     steps:
       - checkout
-      
       - run:
           name: Install packages
-          command: sudo apt-get update && sudo apt-get install wget zip unzip python2.7 python-pip -y
-          
+          command: sudo apt-get update && sudo apt-get install wget zip unzip -y
       - run:
           name: Install awscli
           command: sudo pip install awscli
-
       - run:
-          name: Build Artifact
+          name: Download packer
           command: |
-            cd webapp/cloud-api-data
-            pwd
-            ls -al
-            mvn clean install -DskipTests
-            cd target/
-            ls -al
-            cd ../..
-            pwd
-            ls -al
+            wget -q https://releases.hashicorp.com/packer/1.3.4/packer_1.3.4_linux_amd64.zip
+            unzip packer*.zip
+            chmod +x packer
       - run:
-          name: Zip Artifact
+          name: Validate Packer Template
+          command: ./packer validate centos-ami-template.json
+      - run:
+          name: Build AMI
           command: |
-            echo "Hello the current build number is ${CIRCLE_BUILD_NUM}"
-            pwd
-            mkdir -p codedeploy_artifact
-            cp infrastructure/aws/codedeploy/*.sh /home/circleci/project/
-            cd cloud-api-data/target
-            pwd
-            ls -al 
-            cp cloud-api-data-0.0.1-SNAPSHOT.war /home/circleci/project/
-            cd ../..
-            zip -r csye6225-cloud-api-data-${CIRCLE_BUILD_NUM}.zip cloud-api-data-0.0.1-SNAPSHOT.war *.sh *.yml
-            mv csye6225-cloud-api-data-${CIRCLE_BUILD_NUM}.zip /home/circleci/project/codedeploy_artifact/
-            cd /home/circleci/project/codedeploy_artifact/
-            ls -al
-            pwd
-            cd ..
-            pwd
-            ls -al
-      - run:
-          name: Upload Artifact to S3
-          command: S3_BUCKET=$(aws s3api list-buckets | jq -r '.Buckets[] | select(.Name | startswith("code-deploy")).Name') && aws s3 cp ~/project/codedeploy_artifact/csye6225-cloud-api-data-${CIRCLE_BUILD_NUM}.zip s3://$S3_BUCKET
-      - run:
-          name: Make CodeDeploy API call
-          command: |
-            echo "Hello CodeDeploy"
-            
-            BucketName= aws s3api list-buckets | jq -r '.Buckets[] | select(.Name | startswith("code-deploy")).Name'
-            echo "${CIRCLE_BUILD_NUM}"
-            echo "$BucketName"
-            aws deploy create-deployment --application-name csye6225-webapp --deployment-group-name csye6225-webapp-deployment --s3-location bucket=$(aws s3api list-buckets | jq -r '.Buckets[] | select(.Name | startswith("code-deploy")).Name'),bundleType=zip,key=csye6225-notepadapp-${CIRCLE_BUILD_NUM}.zip
+            ./packer build \
+            -var "aws_region=${AWS_REGION}" \
+            -var "subnet_id=${AWS_SUBNET_ID}" \
+            centos-ami-template.json
