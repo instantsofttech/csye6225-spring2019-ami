@@ -28,7 +28,7 @@ jobs:
       - run:
           name: Build AMI
           command: |
-            ./packer.io build \
+            ./packer build \
             -var "aws_region=${AWS_REGION}" \
             -var "subnet_id=${AWS_SUBNET_ID}" \
             centos-ami-template.json
