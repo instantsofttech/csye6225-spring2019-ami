@@ -22,7 +22,7 @@ jobs:
       - run:
           name: Build Artifact
           command: |
-            cd NotePadApp
+            cd cloud-api-data
             pwd
             ls -al
             mvn clean install -DskipTests
@@ -38,12 +38,12 @@ jobs:
             pwd
             mkdir -p codedeploy_artifact
             cp infrastructure/aws/codedeploy/*.sh /home/circleci/project/
-            cd NotePadApp/target
+            cd cloud-api-data/target
             pwd
             ls -al 
-            cp NotePadApp-0.0.1-SNAPSHOT.war /home/circleci/project/
+            cp cloud-api-data-0.0.1-SNAPSHOT.war /home/circleci/project/
             cd ../..
-            zip -r csye6225-notepadapp-${CIRCLE_BUILD_NUM}.zip NotePadApp-0.0.1-SNAPSHOT.war *.sh *.yml
+            zip -r csye6225-cloud-api-data-${CIRCLE_BUILD_NUM}.zip cloud-api-data-0.0.1-SNAPSHOT.war *.sh *.yml
             mv csye6225-cloud-api-data-${CIRCLE_BUILD_NUM}.zip /home/circleci/project/codedeploy_artifact/
             cd /home/circleci/project/codedeploy_artifact/
             ls -al
@@ -62,4 +62,4 @@ jobs:
             BucketName= aws s3api list-buckets | jq -r '.Buckets[] | select(.Name | startswith("code-deploy")).Name'
             echo "${CIRCLE_BUILD_NUM}"
             echo "$BucketName"
-            aws deploy create-deployment --application-name csye6225-webapp --deployment-group-name csye6225-webapp-deployment --s3-location bucket=$(aws s3api list-buckets | jq -r '.Buckets[] | select(.Name | startswith("code-deploy")).Name'),bundleType=zip,key=csye6225-notepadapp-${CIRCLE_BUILD_NUM}.zip
+            aws deploy create-deployment --application-name csye6225-webapp --deployment-group-name csye6225-webapp-deployment --s3-location bucket=$(aws s3api list-buckets | jq -r '.Buckets[] | select(.Name | startswith("code-deploy")).Name'),bundleType=zip,key=csye6225-cloud-api-data-${CIRCLE_BUILD_NUM}.zip
